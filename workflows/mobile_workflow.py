@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Sequence
+from pathlib import Path
 
 from crewai import Crew, Process, Task
 from pydantic import BaseModel
@@ -59,8 +60,19 @@ def _normalize_mobile_task_result(result: object) -> str:
 class MobileWorkflow:
     """Builds the mobile workflow and keeps store deployment out of scope."""
 
-    def __init__(self, llm=None, max_iterations: int = 3) -> None:
-        self.agents = build_mobile_agents(llm)
+    def __init__(
+        self,
+        llm=None,
+        max_iterations: int = 3,
+        project_dir: Path | None = None,
+    ) -> None:
+        self.project_dir = project_dir.resolve() if project_dir is not None else None
+        project_id = self.project_dir.name if self.project_dir is not None else None
+        self.agents = build_mobile_agents(
+            llm,
+            output_dir=self.project_dir,
+            project_id=project_id,
+        )
         self.max_iterations = max_iterations
         developer = self.agents["mobile_developer"]
         original_execute_task = developer.execute_task
@@ -88,14 +100,33 @@ class MobileWorkflow:
             context=[requirement_task],
         )
         development_task = Task(
-            description="Scaffold and implement the mobile application with local validation checks.",
+            description=(
+                "Scaffold and implement the mobile application with local validation checks."
+                + (
+                    f" Write every generated file only inside output/{self.project_dir.name}/."
+                    if self.project_dir is not None
+                    else ""
+                )
+            ),
             expected_output="Mobile source files and build summary.",
             agent=self.agents["mobile_developer"],
             context=[requirement_task, architecture_task],
         )
         qa_task = Task(
-            description="Run mobile unit tests, lint/type checks, and a local package/build check. Do not deploy to app stores.",
-            expected_output="Mobile QA and build results.",
+            description=(
+                "Run mobile unit tests, lint/type checks, and a local package/build check. "
+                "Do not deploy to app stores."
+                + (
+                    ' Return exactly one JSON object with status "pass" or "fail", a summary, and a failures array.'
+                    if self.project_dir is not None
+                    else ""
+                )
+            ),
+            expected_output=(
+                '{"status":"pass|fail","summary":"...","failures":[]}'
+                if self.project_dir is not None
+                else "Mobile QA and build results."
+            ),
             agent=self.agents["mobile_qa"],
             context=[development_task],
         )
