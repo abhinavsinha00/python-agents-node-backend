@@ -1,0 +1,43 @@
+"""Structured result models shared by workflow stages and autonomous supervisor."""
+
+from .project_results import (
+    ArchitectureResult,
+    BuildRunResult,
+    BuildState,
+    CodeReviewResult,
+    CodeReviewVerdict,
+    DeploymentResult,
+    ExecutionResult,
+    FixResult,
+    ImplementationResult,
+    QAResult,
+    RepairAttempt,
+    RequirementResult,
+    RequirementStatus,
+    ReviewResult,
+    StageFailure,
+    StageStatus,
+    TestCaseResult,
+    TestResult,
+)
+
+__all__ = [
+    "ArchitectureResult",
+    "BuildRunResult",
+    "BuildState",
+    "CodeReviewResult",
+    "CodeReviewVerdict",
+    "DeploymentResult",
+    "ExecutionResult",
+    "FixResult",
+    "ImplementationResult",
+    "QAResult",
+    "RepairAttempt",
+    "RequirementResult",
+    "RequirementStatus",
+    "ReviewResult",
+    "StageFailure",
+    "StageStatus",
+    "TestCaseResult",
+    "TestResult",
+]

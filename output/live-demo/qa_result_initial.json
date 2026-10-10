@@ -1,0 +1,40 @@
+{
+  "status": "pass",
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "test_details": [
+    {
+      "name": "Homepage loads",
+      "status": "PASS",
+      "evidence": "GET / returned HTTP 200; CSRF form token present=True"
+    },
+    {
+      "name": "Add task",
+      "status": "PASS",
+      "evidence": "POST /add returned HTTP 200; task persisted=True"
+    },
+    {
+      "name": "Mark task complete",
+      "status": "PASS",
+      "evidence": "POST /toggle/1 returned HTTP 200; completed=1"
+    },
+    {
+      "name": "Delete task",
+      "status": "PASS",
+      "evidence": "POST /delete/1 returned HTTP 200; task absent=True"
+    },
+    {
+      "name": "SQLite persistence",
+      "status": "PASS",
+      "evidence": "task survived separate requests and was visible in a fresh client=True"
+    },
+    {
+      "name": "Basic error handling",
+      "status": "PASS",
+      "evidence": "invalid CSRF=400, blank title=302, GET mutation=405, rejected rows=0"
+    }
+  ],
+  "defects": [],
+  "recommendations": [],
+  "cleanup_warnings": []
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Counter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="counter-card" aria-labelledby="counter-heading">
+    <h1 id="counter-heading">Counter</h1>
+    <div class="counter-display" aria-live="polite">
+      <span id="counter-value">0</span>
+    </div>
+    <div class="counter-controls">
+      <button id="increment-btn" type="button">Increment</button>
+      <button id="decrement-btn" type="button">Decrement</button>
+    </div>
+  </main>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

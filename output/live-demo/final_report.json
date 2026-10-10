@@ -1,0 +1,15 @@
+{
+  "model": "gemini/gemini-3.5-flash-lite",
+  "initial_qa": "pass",
+  "code_review": "pass",
+  "fix_agent_executed": false,
+  "exact_fixes": [
+    "Before the agent pipeline: explicitly close SQLite connections after transactions to avoid Windows file locks.",
+    "Before the agent pipeline: use unique temporary SQLite databases for QA runs and safely remove database sidecars.",
+    "Before the agent pipeline: retain POST-only state mutations, validate CSRF tokens, and disable Flask debug mode."
+  ],
+  "retest": "not_run",
+  "final_status": "pass",
+  "remaining_defects": [],
+  "execution_error": null
+}

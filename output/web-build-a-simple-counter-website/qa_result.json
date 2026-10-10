@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "project": "output/web-build-a-simple-counter-website",
+  "checks": {
+    "files_exist": true,
+    "html_structure": true,
+    "css_styling": true,
+    "js_logic": true,
+    "no_build_required": true
+  },
+  "details": {
+    "file_count": 3,
+    "ids_found": [
+      "counter-value",
+      "increment-btn",
+      "decrement-btn"
+    ],
+    "initial_count": 0,
+    "increment_behavior": "pass",
+    "decrement_behavior": "pass"
+  }
+}

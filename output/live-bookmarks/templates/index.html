@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Bookmark Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔖 Bookmark Manager</h1>
+            <p>Save and organize your favorite links</p>
+        </header>
+
+        <section class="card add-section">
+            <h2>Add New Bookmark</h2>
+            <form action="{{ url_for('add_bookmark') }}" method="POST">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" placeholder="e.g. GitHub" required>
+                </div>
+                <div class="form-group">
+                    <label for="url">URL</label>
+                    <input type="url" id="url" name="url" placeholder="https://github.com" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Bookmark</button>
+            </form>
+        </section>
+
+        <section class="card search-section">
+            <form action="{{ url_for('index') }}" method="GET" class="search-form">
+                <input type="text" name="q" placeholder="Search by title..." value="{{ query }}">
+                <button type="submit" class="btn btn-secondary">Search</button>
+                {% if query %}
+                    <a href="{{ url_for('index') }}" class="btn btn-outline">Clear</a>
+                {% endif %}
+            </form>
+        </section>
+
+        <section class="card list-section">
+            <h2>Saved Bookmarks</h2>
+            {% if bookmarks %}
+                <ul class="bookmark-list">
+                    {% for bm in bookmarks %}
+                        <li>
+                            <div class="bookmark-info">
+                                <strong>{{ bm.title }}</strong>
+                                <a href="{{ bm.url }}" target="_blank" rel="noopener noreferrer">{{ bm.url }}</a>
+                            </div>
+                            <form action="{{ url_for('delete_bookmark', id=bm.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-msg">No bookmarks found.</p>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>
