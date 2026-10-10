@@ -43,13 +43,20 @@ class AutonomousSupervisor:
         deployer: BaseDeployer | None = None,
         executor: ApplicationExecutor | None = None,
         verbose: bool = True,
+        project_dir: Path | None = None,
     ) -> None:
         self.llm = llm
         self.max_fix_attempts = max_fix_attempts
         self.deployer = deployer or get_deployer()
         self.executor = executor or ApplicationExecutor()
         self.verbose = verbose
-        self.agents = build_web_agents(llm) if llm is not None else None
+        self.project_dir = project_dir.resolve() if project_dir is not None else None
+        project_id = self.project_dir.name if self.project_dir is not None else None
+        self.agents = (
+            build_web_agents(llm, output_dir=self.project_dir, project_id=project_id)
+            if llm is not None
+            else None
+        )
 
     def _log_stage(self, stage_num: int, total: int, stage_name: str, status: str) -> None:
         if self.verbose:
@@ -74,6 +81,8 @@ class AutonomousSupervisor:
     ) -> BuildRunResult:
         """Execute the full autonomous software development lifecycle."""
         # 1. Project directory setup
+        if project_dir is None and self.project_dir is not None:
+            project_dir = self.project_dir
         if project_dir is None:
             words = re.findall(r"[a-z0-9]+", requirement.lower())[:5]
             slug = "-".join(words) or "new-project"
@@ -279,7 +288,7 @@ class AutonomousSupervisor:
                     ),
                     expected_output="Implementation summary after files are written.",
                     agent=agent,
-                    tools=[WriteFileTool()],
+                    tools=[WriteFileTool(output_dir=project_dir, project_id=p_name)],
                 )
                 crew = Crew(agents=[agent], tasks=[task], process=Process.sequential, verbose=False)
                 crew.kickoff()

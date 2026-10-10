@@ -8,7 +8,11 @@ from crewai.tools import BaseTool
 PROJECT_DIR = Path(os.path.abspath("output")).resolve()
 
 
-def resolve_output_path(path: str, output_dir: Path = PROJECT_DIR) -> Path:
+def resolve_output_path(
+    path: str,
+    output_dir: Path = PROJECT_DIR,
+    project_id: str | None = None,
+) -> Path:
     """Resolve a relative project path safely beneath the output directory."""
     normalized = path.strip().replace("\\", "/")
     windows_path = PureWindowsPath(normalized)
@@ -20,6 +24,8 @@ def resolve_output_path(path: str, output_dir: Path = PROJECT_DIR) -> Path:
     if any(part == ".." for part in parts):
         raise ValueError("path must not escape output/")
     while parts and parts[0].lower() == "output":
+        parts.pop(0)
+    if project_id and parts and parts[0] == project_id:
         parts.pop(0)
     if not parts:
         raise ValueError("path must name a file inside output/")
@@ -34,6 +40,8 @@ def resolve_output_path(path: str, output_dir: Path = PROJECT_DIR) -> Path:
 class WriteFileTool(BaseTool):
     name: str = "write_file"
     description: str = "Write code/content to a file inside the project. Input format: path::content  (path relative to output/ folder)"
+    output_dir: Path | None = None
+    project_id: str | None = None
 
     def _run(self, tool_input: str) -> str:
         try:
@@ -41,13 +49,14 @@ class WriteFileTool(BaseTool):
         except ValueError:
             return "ERROR: input must be 'path::content'"
         try:
-            full = resolve_output_path(path)
+            output_dir = (self.output_dir or PROJECT_DIR).resolve()
+            full = resolve_output_path(path, output_dir, self.project_id)
         except ValueError as exc:
             return f"ERROR: {exc}"
         full.parent.mkdir(parents=True, exist_ok=True)
         full.write_text(content, encoding="utf-8")
         try:
-            rel = full.relative_to(PROJECT_DIR).as_posix()
+            rel = full.relative_to(output_dir).as_posix()
         except ValueError:
             rel = full.name
         return f"OK: wrote {rel}"
@@ -56,10 +65,12 @@ class RunCommandTool(BaseTool):
     name: str = "run_command"
     description: str = ("Run a shell command inside the project (e.g. run tests: pytest, "
                         "python script.py, or list files). Input: command string")
+    output_dir: Path | None = None
+
     def _run(self, command: str) -> str:
         try:
             result = subprocess.run(
-                command, shell=True, cwd=PROJECT_DIR,
+                command, shell=True, cwd=(self.output_dir or PROJECT_DIR).resolve(),
                 capture_output=True, text=True, timeout=120
             )
             out = (result.stdout + result.stderr)[:4000]

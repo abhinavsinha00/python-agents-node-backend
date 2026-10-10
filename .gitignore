@@ -1,9 +1,14 @@
 .env
 .env.*
 !.env.example
+node-backend/.env
+node-backend/.env.*
+!node-backend/.env.example
 
 __pycache__/
 *.py[cod]
+.venv/
+.crewai/
 
 *.db
 *.sqlite
@@ -27,3 +32,6 @@ node_modules/
 dist/
 build/
 .expo/
+node-backend/logs/
+*.tmp
+*.pid

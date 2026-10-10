@@ -1,5 +1,6 @@
 """Agent factories for the mobile development workflow."""
 
+from pathlib import Path
 from typing import Any
 
 from crewai import Agent
@@ -13,7 +14,11 @@ def _llm() -> Any:
     return get_default_llm()
 
 
-def build_mobile_agents(llm: Any | None = None):
+def build_mobile_agents(
+    llm: Any | None = None,
+    output_dir: Path | None = None,
+    project_id: str | None = None,
+):
     """Create mobile architecture, implementation, and validation agents."""
     llm = llm or _llm()
     return {
@@ -37,7 +42,7 @@ def build_mobile_agents(llm: Any | None = None):
             backstory="You are a mobile engineer. Generate React Native/Expo project files and keep platform-specific code isolated.",
             llm=llm,
             verbose=True,
-            tools=[WriteFileTool(), WriteJsonResultTool()],
+            tools=[WriteFileTool(output_dir=output_dir, project_id=project_id), WriteJsonResultTool(output_dir=output_dir, project_id=project_id)],
         ),
         "mobile_qa": Agent(
             role="Mobile QA/Build Agent",
@@ -45,6 +50,6 @@ def build_mobile_agents(llm: Any | None = None):
             backstory="You are a mobile QA engineer. Run lint, type checks, tests, and package/build validation. Never deploy to App Store or Play Store.",
             llm=llm,
             verbose=True,
-            tools=[RunCommandTool(), WriteJsonResultTool()],
+            tools=[RunCommandTool(output_dir=output_dir), WriteJsonResultTool(output_dir=output_dir, project_id=project_id)],
         ),
     }
